@@ -11,7 +11,6 @@ add_compile_options(
     -Wall
     -Wextra
     -Wno-unused-result
-    -Wno-unused-function
 )
 
 if (OPTIMIZE)
