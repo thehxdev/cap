@@ -45,8 +45,12 @@ extern "C" {
 #ifdef __CAP_DEBUG__
 # define CAP_LOG_ERR(format, ...) \
      (void)fprintf(stderr, "[ERROR] " format, __VA_ARGS__)
+
+# define CAP_LOG_INF(format, ...) \
+     (void)fprintf(stderr, "[INFO] " format, __VA_ARGS__)
 #else
 # define CAP_LOG_ERR(format, ...)
+# define CAP_LOG_INF(format, ...)
 #endif
 
 /* Since `free()` ignores NULL pointer, set pointer to NULL
@@ -147,23 +151,6 @@ typedef struct __Cap_SCList_t {
 } __Cap_SCList_t;
 
 
-/* Token type */
-enum __Cap_TkType {
-    T_SUBCMD,
-    T_FLAG,
-    T_RAW,
-};
-
-
-typedef struct __Cap_Token_t {
-    /* normalized value of argument */
-    char *value;
-
-    /* type of argument */
-    enum __Cap_TkType type;
-} __Cap_Token_t;
-
-
 /* Cap */
 struct Cap_t {
     /* name of executable */
@@ -203,15 +190,18 @@ static inline void xfree(void *p) {
 
 
 /* Get a character form character array */
+/*
 static inline char __cap_str_getchar(const char *s,
                                      const size_t slen,
                                      const long idx)
 {
     return ((idx >= 0) && (idx < (long)slen)) ? s[idx] : '\0';
 }
+*/
 
 
 /* Get a sub-string from a character array */
+/*
 static char *__cap_str_substr(char *s,
                               const size_t slen,
                               const long start,
@@ -227,6 +217,7 @@ static char *__cap_str_substr(char *s,
 ret:
     return s;
 }
+*/
 
 
 static void __cap_flag_free(__Cap_Flag_t **flag) {
