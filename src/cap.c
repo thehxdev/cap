@@ -604,8 +604,9 @@ int cap_parse_args(Cap_t *cap) {
 
     flist = (sc) ? sc->flags : cap->m_flags;
     if (flist == NULL) {
-            CAP_LOG_ERR("%s: No flag registered in this flag list\n", __FUNCTION__);
-            return 1;
+            CAP_LOG_ERR("%s: No flags registered in this flag list\n", __FUNCTION__);
+            CAP_LOG_INF("%s: Nothing to parse...\n", __FUNCTION__);
+            return 0;
     }
 
     for (int i = 0; i < argc; i++) {
