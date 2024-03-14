@@ -75,6 +75,9 @@ int cap_flag_provided(Cap_t *cap,
                       const char *name);
 
 
+/* get provided sub-command in command-line */
+int cap_subcmd_provided(Cap_t *cap, const char *subcmd);
+
 Cap_RawArgs_t cap_subcmd_rawargs(Cap_t *cap, const char *subcmd);
 
 int cap_parse_args(Cap_t *cap);

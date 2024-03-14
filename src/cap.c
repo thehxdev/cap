@@ -632,6 +632,12 @@ int cap_parse_args(Cap_t *cap) {
 }
 
 
+int cap_subcmd_provided(Cap_t *cap, const char *subcmd) {
+    __Cap_Subcmd_t *sc = cap->scmd;
+    return (sc) ? (strcmp(sc->name, subcmd) == 0) : 0;
+}
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
