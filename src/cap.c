@@ -25,8 +25,8 @@ extern "C" {
  */
 
 /* enable debugging.
- * Comment this line to disable logging */
-#define __CAP_DEBUG__
+ * un-comment this line to enable logging */
+/* #define __CAP_DEBUG__ */
 
 /* Log error messages */
 #define CAP_LOG_ERR(format, ...) \
