@@ -586,7 +586,7 @@ int cap_parse_args(Cap_t *cap) {
     __Cap_FList_t *flist;
     __Cap_Flag_t *flag;
     int argc = cap->argc;
-    char **argv = cap->argv, *subcmd = NULL;
+    char **argv = cap->argv, *subcmd = NULL, *next_arg;
 
     if (argv == NULL) {
         CAP_LOG_ERR("%s: No arguments provided\n", __FUNCTION__);
@@ -626,7 +626,14 @@ int cap_parse_args(Cap_t *cap) {
                 continue;
             }
             flag->met = 1;
-            flag->val = __cap_argv_get(argv, argc, i+1);
+
+            next_arg = __cap_argv_get(argv, argc, i+1);
+            if (next_arg) {
+                if (*next_arg != '-')
+                    flag->val = next_arg;
+                else
+                    flag->val = NULL;
+            }
         }
     }
 
