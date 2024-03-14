@@ -1,6 +1,7 @@
 # Cap
 
-Cap is a single header command-line argument parser library written in C and compatible with C99.
+Cap is a single header command-line argument parser library written in C
+with low memory footprint and compatible with C99 standard.
 
 
 
