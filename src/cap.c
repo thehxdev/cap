@@ -29,8 +29,12 @@ extern "C" {
 /* #define __CAP_DEBUG__ */
 
 /* Log error messages */
-#define CAP_LOG_ERR(format, ...) \
-    (void)fprintf(stderr, "[ERROR] " format, __VA_ARGS__)
+#ifdef __CAP_DEBUG__
+# define CAP_LOG_ERR(format, ...) \
+     (void)fprintf(stderr, "[ERROR] " format, __VA_ARGS__)
+#else
+# define CAP_LOG_ERR(format, ...)
+#endif
 
 /* Since `free()` ignores NULL pointer, set pointer to NULL
  * after calling `free()` to prevent double free error. */
@@ -262,30 +266,24 @@ static void __cap_sclist_free(__Cap_SCList_t **sclist) {
 static __Cap_Subcmd_t *__cap_subcmd_new(const char *name, const char *help) {
     __Cap_Subcmd_t *sc = malloc(sizeof(__Cap_Subcmd_t));
     if (sc == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed to allocate memory for new sub-command\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
-#endif
         return NULL;
     }
 
     sc->name = strdup(name);
     if (sc->name == NULL) {
         __cap_subcmd_free(&sc);
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed copy \'name\' parameter to \'sc->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
-#endif
         return NULL;
     }
 
     sc->help = strdup(help);
     if (sc->help == NULL) {
         __cap_subcmd_free(&sc);
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed copy \'help\' parameter to \'sc->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
-#endif
         return NULL;
     }
 
@@ -300,9 +298,7 @@ static __Cap_Subcmd_t *__cap_subcmd_new(const char *name, const char *help) {
 static __Cap_SCList_t *__cap_sclist_new(const size_t capacity) {
     __Cap_SCList_t *scl = malloc(sizeof(__Cap_SCList_t));
     if (scl == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed to allocate memory for new sub-command list\n", __FUNCTION__);
-#endif
         return NULL;
     }
 
@@ -331,30 +327,24 @@ static __Cap_Subcmd_t *__cap_sclist_find(const __Cap_SCList_t *sclist,
 static __Cap_Flag_t *__cap_flag_new(const char *name, const char *help) {
     __Cap_Flag_t *f = malloc(sizeof(__Cap_Flag_t));
     if (f == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed to allocate memory for new flag\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
-#endif
         return NULL;
     }
 
     f->val  = NULL;
     f->name = strdup(name);
     if (f->name == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed to write name of flag to \'f->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
-#endif
         __cap_flag_free(&f);
         return NULL;
     }
 
     f->help = strdup(help);
     if (f->help == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed to write flag help message to \'f->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
-#endif
         __cap_flag_free(&f);
         return NULL;
     }
@@ -366,9 +356,7 @@ static __Cap_Flag_t *__cap_flag_new(const char *name, const char *help) {
 static __Cap_FList_t *__cap_flist_new(const size_t capacity) {
     __Cap_FList_t *fl = malloc(sizeof(__Cap_FList_t));
     if (fl == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed to allocate memory for new flag list\n", __FUNCTION__);
-#endif
         return NULL;
     }
 
@@ -398,9 +386,7 @@ static __Cap_Flag_t *__cap_flist_find(const __Cap_FList_t *fl,
 Cap_t *cap_init(int argc, char **argv) {
     Cap_t *cap = malloc(sizeof(Cap_t));
     if (cap == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Failed to initialize cap\n", __FUNCTION__);
-#endif
         return NULL;
     }
 
@@ -435,9 +421,7 @@ int cap_register_subcmd(Cap_t *cap, const char *name, const char *help) {
     if (*scl == NULL) {
         *scl = __cap_sclist_new(5);
         if (*scl == NULL) {
-#ifdef __CAP_DEBUG__
             CAP_LOG_ERR("%s: New sub-command list is NULL\n", __FUNCTION__);
-#endif
             return 1;
         }
     }
@@ -445,9 +429,7 @@ int cap_register_subcmd(Cap_t *cap, const char *name, const char *help) {
 
     __Cap_Subcmd_t *sc = __cap_subcmd_new(name, help);
     if (sc == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: new sub-command pointer is NULL\n", __FUNCTION__);
-#endif
         return 1;
     }
 
@@ -470,11 +452,9 @@ int cap_register_flag(Cap_t *cap,
     } else {
         sc = __cap_sclist_find(cap->sub_cmds, subcmd);
         if (sc == NULL) {
-#ifdef __CAP_DEBUG__
             CAP_LOG_ERR("%s: sub-command not found in registered sub-commands: %s\n",
                         __FUNCTION__, subcmd);
             CAP_LOG_ERR("New flag\'s name: %s\n", name);
-#endif
             return 1;
         }
         fl = &sc->flags;
@@ -483,20 +463,16 @@ int cap_register_flag(Cap_t *cap,
     if (*fl == NULL) {
         *fl = __cap_flist_new(5);
         if (*fl == NULL) {
-#ifdef __CAP_DEBUG__
             CAP_LOG_ERR("%s: Failed to create a new flag-list\n", __FUNCTION__);
             CAP_LOG_ERR("New flag\'s name: %s\n", name);
-#endif
             return 1;
         }
     }
 
     f = __cap_flag_new(name, help);
     if (f == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: New flag\'s pointer is NULL\n", __FUNCTION__);
         CAP_LOG_ERR("New flag\'s name: %s\n", name);
-#endif
     }
 
     __cap_darr_append((*fl)->flags, (*fl)->len, (*fl)->cap, f, __Cap_Flag_t);
@@ -514,28 +490,22 @@ char *cap_flag_getval(Cap_t *cap, const char *subcmd, const char *name) {
     } else {
         sc = __cap_sclist_find(cap->sub_cmds, subcmd);
         if (sc == NULL) {
-#ifdef __CAP_DEBUG__
             CAP_LOG_ERR("%s: sub-command not found in registered sub-commands: %s\n",
                         __FUNCTION__, subcmd);
-#endif
             return NULL;
         }
         fl = &sc->flags;
     }
 
     if (*fl == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Trying to get \'%s\' flag value...\n", __FUNCTION__, name);
         CAP_LOG_ERR("%s: flag list is not initialized and it\'s NULL\n", __FUNCTION__);
-#endif
         return NULL;
     }
 
     flag = __cap_flist_find(*fl, name);
     if (flag == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: Flag not found in registered flags list\n", __FUNCTION__);
-#endif
         return NULL;
     }
 
@@ -556,10 +526,8 @@ int cap_flag_provided(Cap_t *cap,
     } else {
         sc = __cap_sclist_find(cap->sub_cmds, subcmd);
         if (sc == NULL) {
-#ifdef __CAP_DEBUG__
             CAP_LOG_ERR("%s: sub-command not found in registered sub-commands: %s\n",
                         __FUNCTION__, subcmd);
-#endif
             return 0;
         }
         fl = &sc->flags;
@@ -567,10 +535,8 @@ int cap_flag_provided(Cap_t *cap,
 
     flag = __cap_flist_find(*fl, name);
     if (flag == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: flag not found in flag-list: %s",
                     __FUNCTION__, name);
-#endif
         return 0;
     }
 
@@ -610,9 +576,7 @@ int cap_parse_args(Cap_t *cap) {
     char **argv = cap->argv, *subcmd = NULL;
 
     if (argv == NULL) {
-#ifdef __CAP_DEBUG__
         CAP_LOG_ERR("%s: No arguments provided\n", __FUNCTION__);
-#endif
         return 1;
     }
 
@@ -625,9 +589,7 @@ int cap_parse_args(Cap_t *cap) {
     if (subcmd) {
         sc = __cap_sclist_find(cap->sub_cmds, subcmd);
         if (sc == NULL) {
-#ifdef __CAP_DEBUG__
             CAP_LOG_ERR("%s: Invalid sub-command: %s\n", __FUNCTION__, subcmd);
-#endif
         } else {
             cap->scmd = sc;
             sc->raw_argc = argc;
@@ -638,10 +600,8 @@ int cap_parse_args(Cap_t *cap) {
 
     flist = (sc) ? sc->flags : cap->m_flags;
     if (flist == NULL) {
-#ifdef __CAP_DEBUG__
             CAP_LOG_ERR("%s: No flag registered in this flag list\n", __FUNCTION__);
             return 1;
-#endif
     }
 
     for (int i = 0; i < argc; i++) {
@@ -649,9 +609,7 @@ int cap_parse_args(Cap_t *cap) {
         if (curr_arg[0] == '-') {
             flag = __cap_flist_find(flist, __cap_flag_ext_name(curr_arg));
             if (flag == NULL) {
-#ifdef __CAP_DEBUG__
                 CAP_LOG_ERR("%s: Invalid flag: %s\n", __FUNCTION__, curr_arg);
-#endif
                 continue;
             }
             flag->met = 1;
