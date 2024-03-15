@@ -611,21 +611,16 @@ int cap_parse_args(Cap_t *cap) {
 
     for (int i = 0; i < argc; i++) {
         char *curr_arg = argv[i];
-        if (curr_arg[0] == '-') {
+        if (*curr_arg == '-') {
             flag = __cap_flist_find(flist, __cap_flag_extr_name(curr_arg));
             if (flag == NULL) {
                 CAP_LOG_ERR("%s: Invalid flag: %s\n", __FUNCTION__, curr_arg);
                 continue;
             }
             flag->met = 1;
-
             next_arg = __cap_argv_get(argv, argc, i+1);
-            if (next_arg) {
-                if (*next_arg != '-')
-                    flag->val = next_arg;
-                else
-                    flag->val = NULL;
-            }
+            if (next_arg)
+                flag->val = (*next_arg != '-') ? next_arg : NULL;
         }
     }
 
