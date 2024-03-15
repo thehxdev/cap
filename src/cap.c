@@ -549,7 +549,7 @@ int cap_flag_provided(Cap_t *cap,
 
 
 /* remove dashes from beginning of flag name */
-static inline char *__cap_flag_ext_name(char *str) {
+static inline char *__cap_flag_extr_name(char *str) {
     while (*str == '-') str++;
     return str;
 }
@@ -612,7 +612,7 @@ int cap_parse_args(Cap_t *cap) {
     for (int i = 0; i < argc; i++) {
         char *curr_arg = argv[i];
         if (curr_arg[0] == '-') {
-            flag = __cap_flist_find(flist, __cap_flag_ext_name(curr_arg));
+            flag = __cap_flist_find(flist, __cap_flag_extr_name(curr_arg));
             if (flag == NULL) {
                 CAP_LOG_ERR("%s: Invalid flag: %s\n", __FUNCTION__, curr_arg);
                 continue;
