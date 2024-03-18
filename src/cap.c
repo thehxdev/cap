@@ -179,47 +179,6 @@ struct Cap_t {
  * Functionalities
  */
 
-/* Since `free()` ignores NULL pointer, set pointer
- * to NULL to prevent double free */
-#if 0
-static inline void xfree(void *p) {
-    free(p);
-    p = NULL;
-}
-#endif
-
-
-/* Get a character form character array */
-/*
-static inline char __cap_str_getchar(const char *s,
-                                     const size_t slen,
-                                     const long idx)
-{
-    return ((idx >= 0) && (idx < (long)slen)) ? s[idx] : '\0';
-}
-*/
-
-
-/* Get a sub-string from a character array */
-/*
-static char *__cap_str_substr(char *s,
-                              const size_t slen,
-                              const long start,
-                              const long end)
-{
-    if (s == NULL || start >= (long)slen)
-        goto ret;
-
-    s += start;
-    if (end != 0 && end <= (long)slen)
-        s[end] = '\0';
-
-ret:
-    return s;
-}
-*/
-
-
 static void __cap_flag_free(__Cap_Flag_t **flag) {
     __Cap_Flag_t *f = *flag;
     if (f) {
