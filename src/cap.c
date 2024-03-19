@@ -276,6 +276,9 @@ static __Cap_SCList_t *__cap_sclist_new(const size_t capacity) {
 static __Cap_Subcmd_t *__cap_sclist_find(const __Cap_SCList_t *sclist,
                                          const char *name)
 {
+    if (sclist == NULL)
+        return NULL;
+
     __Cap_Subcmd_t *res = NULL;
     __cap_darr_find(res,
                     tmp,
@@ -334,6 +337,9 @@ static __Cap_FList_t *__cap_flist_new(const size_t capacity) {
 static __Cap_Flag_t *__cap_flist_find(const __Cap_FList_t *fl,
                                       const char *name)
 {
+    if (fl == NULL)
+        return NULL;
+
     __Cap_Flag_t *res = NULL;
     __cap_darr_find(res,
                     tmp,
