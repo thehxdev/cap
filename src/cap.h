@@ -27,7 +27,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-#define CAP_VERSION "1.0.4"
+#define CAP_VERSION "1.0.5"
 #define CAP_DEINIT __attribute__((cleanup(cap_deinit)))
 
 
