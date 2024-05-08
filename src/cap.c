@@ -191,48 +191,49 @@ struct Cap_t {
  * Functionalities
  */
 
-static void __cap_flag_free(__Cap_Flag_t *flag) {
+static void __cap_flag_free(__Cap_Flag_t **flag) {
+    __Cap_Flag_t *f = *flag;
     if (flag) {
-        cap_xfree(flag->name);
-        cap_xfree(flag->help);
-        /* xfree(flag->val); */
-        cap_xfree(flag);
+        cap_xfree(f->name);
+        cap_xfree(f->help);
+        /* xfree(f->val); */
+        cap_xfree(*flag);
     }
 }
 
 
 /* free a flag-list */
-static void __cap_flist_free(__Cap_FList_t *flp) {
+static void __cap_flist_free(__Cap_FList_t **flp) {
     size_t i;
-    __Cap_FList_t *fl = flp;
+    __Cap_FList_t *fl = *flp;
     if (fl) {
         for (i = 0; i < fl->len; i++)
-            __cap_flag_free(fl->flags[i]);
+            __cap_flag_free(&fl->flags[i]);
         cap_xfree(fl->flags);
-        cap_xfree(fl);
+        cap_xfree(*flp);
     }
 }
 
 
-static void __cap_subcmd_free(__Cap_Subcmd_t *scmd) {
-    __Cap_Subcmd_t *sc = scmd;
+static void __cap_subcmd_free(__Cap_Subcmd_t **scmd) {
+    __Cap_Subcmd_t *sc = *scmd;
     if (sc) {
-        __cap_flist_free(sc->flags);
+        __cap_flist_free(&sc->flags);
         cap_xfree(sc->name);
         cap_xfree(sc->help);
-        cap_xfree(sc);
+        cap_xfree(*scmd);
     }
 }
 
 
-static void __cap_sclist_free(__Cap_SCList_t *sclist) {
+static void __cap_sclist_free(__Cap_SCList_t **sclist) {
     size_t i;
-    __Cap_SCList_t *scl = sclist;
+    __Cap_SCList_t *scl = *sclist;
     if (scl) {
         for (i = 0; i < scl->len; i++)
-            __cap_subcmd_free(scl->cmds[i]);
+            __cap_subcmd_free(&scl->cmds[i]);
         cap_xfree(scl->cmds);
-        cap_xfree(scl);
+        cap_xfree(*sclist);
     }
 }
 
@@ -254,14 +255,14 @@ static __Cap_Subcmd_t *__cap_subcmd_new(const char *name, const char *help) {
     };
 
     if (!sc->name) {
-        __cap_subcmd_free(sc);
+        __cap_subcmd_free(&sc);
         CAP_LOG_ERR("%s: Failed copy \'name\' parameter to \'sc->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
         return NULL;
     }
 
     if (!sc->help) {
-        __cap_subcmd_free(sc);
+        __cap_subcmd_free(&sc);
         CAP_LOG_ERR("%s: Failed copy \'help\' parameter to \'sc->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
         return NULL;
@@ -321,14 +322,14 @@ static __Cap_Flag_t *__cap_flag_new(const char *name, const char *help) {
     if (!f->name) {
         CAP_LOG_ERR("%s: Failed to write name of flag to \'f->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
-        __cap_flag_free(f);
+        __cap_flag_free(&f);
         return NULL;
     }
 
     if (!f->help) {
         CAP_LOG_ERR("%s: Failed to write flag help message to \'f->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
-        __cap_flag_free(f);
+        __cap_flag_free(&f);
         return NULL;
     }
 
@@ -394,9 +395,9 @@ Cap_t *cap_init(int argc, char **argv) {
 void cap_deinit(Cap_t **cap) {
     Cap_t *c = *cap;
     if (c) {
-        __cap_sclist_free(c->sub_cmds);
-        __cap_flist_free(c->m_flags);
-        cap_xfree(c);
+        __cap_sclist_free(&c->sub_cmds);
+        __cap_flist_free(&c->m_flags);
+        cap_xfree(*cap);
     }
 }
 
