@@ -103,7 +103,7 @@ extern "C" {
 
 /* general type to store flag metadata */
 typedef struct __Cap_Flag_t {
-    /* is flag provided in command-line or not */
+    /* is flag provided in arguments or not */
     unsigned int met: 1;
 
     /* flag name */
