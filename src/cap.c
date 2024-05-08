@@ -238,47 +238,51 @@ static void __cap_sclist_free(__Cap_SCList_t *sclist) {
 
 
 static __Cap_Subcmd_t *__cap_subcmd_new(const char *name, const char *help) {
-    __Cap_Subcmd_t *sc = malloc(sizeof(__Cap_Subcmd_t));
-    if (sc == NULL) {
+    __Cap_Subcmd_t *sc = malloc(sizeof(*sc));
+    if (!sc) {
         CAP_LOG_ERR("%s: Failed to allocate memory for new sub-command\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
         return NULL;
     }
 
-    sc->name = strdup(name);
-    if (sc->name == NULL) {
+    *sc = (__Cap_Subcmd_t) {
+        .name = strdup(name),
+        .help = strdup(help),
+        .flags = NULL,
+        .raw_argc = 0,
+        .raw_argv = NULL,
+    };
+
+    if (!sc->name) {
         __cap_subcmd_free(sc);
         CAP_LOG_ERR("%s: Failed copy \'name\' parameter to \'sc->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
         return NULL;
     }
 
-    sc->help = strdup(help);
-    if (sc->help == NULL) {
+    if (!sc->help) {
         __cap_subcmd_free(sc);
         CAP_LOG_ERR("%s: Failed copy \'help\' parameter to \'sc->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
         return NULL;
     }
 
-    sc->flags = NULL;
-    sc->raw_argc = 0;
-    sc->raw_argv = NULL;
-
     return sc;
 }
 
 
 static __Cap_SCList_t *__cap_sclist_new(const size_t capacity) {
-    __Cap_SCList_t *scl = malloc(sizeof(__Cap_SCList_t));
-    if (scl == NULL) {
+    __Cap_SCList_t *scl = malloc(sizeof(*scl));
+    if (!scl) {
         CAP_LOG_ERR("%s: Failed to allocate memory for new sub-command list\n", __FUNCTION__);
         return NULL;
     }
 
-    scl->len  = 0;
-    scl->cap  = capacity;
-    scl->cmds = NULL;
+    *scl = (__Cap_SCList_t) {
+        .len = 0,
+        .cap = capacity,
+        .cmds = NULL,
+    };
 
     return scl;
 }
@@ -287,7 +291,7 @@ static __Cap_SCList_t *__cap_sclist_new(const size_t capacity) {
 static __Cap_Subcmd_t *__cap_sclist_find(const __Cap_SCList_t *sclist,
                                          const char *name)
 {
-    if (sclist == NULL)
+    if (!sclist)
         return NULL;
 
     __Cap_Subcmd_t *res = NULL;
@@ -301,24 +305,27 @@ static __Cap_Subcmd_t *__cap_sclist_find(const __Cap_SCList_t *sclist,
 
 
 static __Cap_Flag_t *__cap_flag_new(const char *name, const char *help) {
-    __Cap_Flag_t *f = malloc(sizeof(__Cap_Flag_t));
+    __Cap_Flag_t *f = malloc(sizeof(*f));
     if (f == NULL) {
         CAP_LOG_ERR("%s: Failed to allocate memory for new flag\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
         return NULL;
     }
 
-    f->val  = NULL;
-    f->name = strdup(name);
-    if (f->name == NULL) {
+    *f = (__Cap_Flag_t) {
+        .name = strdup(name),
+        .help = strdup(help),
+        .val = NULL,
+    };
+
+    if (!f->name) {
         CAP_LOG_ERR("%s: Failed to write name of flag to \'f->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
         __cap_flag_free(f);
         return NULL;
     }
 
-    f->help = strdup(help);
-    if (f->help == NULL) {
+    if (!f->help) {
         CAP_LOG_ERR("%s: Failed to write flag help message to \'f->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
         __cap_flag_free(f);
@@ -330,15 +337,17 @@ static __Cap_Flag_t *__cap_flag_new(const char *name, const char *help) {
 
 
 static __Cap_FList_t *__cap_flist_new(const size_t capacity) {
-    __Cap_FList_t *fl = malloc(sizeof(__Cap_FList_t));
-    if (fl == NULL) {
+    __Cap_FList_t *fl = malloc(sizeof(*fl));
+    if (!fl) {
         CAP_LOG_ERR("%s: Failed to allocate memory for new flag list\n", __FUNCTION__);
         return NULL;
     }
 
-    fl->len  = 0;
-    fl->cap  = capacity;
-    fl->flags = NULL;
+    *fl = (__Cap_FList_t) {
+        .len = 0,
+        .cap = capacity,
+        .flags = NULL,
+    };
 
     return fl;
 }
@@ -347,7 +356,7 @@ static __Cap_FList_t *__cap_flist_new(const size_t capacity) {
 static __Cap_Flag_t *__cap_flist_find(const __Cap_FList_t *fl,
                                       const char *name)
 {
-    if (fl == NULL)
+    if (!fl)
         return NULL;
 
     __Cap_Flag_t *res = NULL;
@@ -363,22 +372,20 @@ static __Cap_Flag_t *__cap_flist_find(const __Cap_FList_t *fl,
 /* Initialize Cap */
 Cap_t *cap_init(int argc, char **argv) {
     Cap_t *cap = malloc(sizeof(*cap));
-    if (cap == NULL) {
+    if (!cap) {
         CAP_LOG_ERR("%s: Failed to initialize cap\n", __FUNCTION__);
         return NULL;
     }
+    argc--;
 
-    cap->prog = argv[0];
-    cap->argc = argc-1;
-
-    if (cap->argc == 0)
-        cap->argv = NULL;
-    else
-        cap->argv = argv+1;
-
-    cap->scmd     = NULL;
-    cap->m_flags  = NULL;
-    cap->sub_cmds = NULL;
+    *cap = (Cap_t) {
+        .prog = argv[0],
+        .argc = argc,
+        .argv = (argc == 0) ? NULL : argv+1,
+        .scmd = NULL,
+        .m_flags = NULL,
+        .sub_cmds = NULL,
+    };
 
     return cap;
 }
