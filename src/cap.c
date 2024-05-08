@@ -53,14 +53,16 @@ extern "C" {
 
 /* Log error messages */
 #ifdef __CAP_DEBUG__
-# define CAP_LOG_ERR(format, ...) \
-     (void)fprintf(stderr, "[ERROR] " format, __VA_ARGS__)
+    #define CAP_LOG_FD  stderr
 
-# define CAP_LOG_INF(format, ...) \
-     (void)fprintf(stderr, "[INFO] " format, __VA_ARGS__)
+    #define CAP_LOG_ERR(format, ...) \
+        (void)fprintf(CAP_LOG_FD, "[ERROR] " format, __VA_ARGS__)
+
+    #define CAP_LOG_INF(format, ...) \
+        (void)fprintf(CAP_LOG_FD, "[INFO] " format, __VA_ARGS__)
 #else
-# define CAP_LOG_ERR(format, ...)
-# define CAP_LOG_INF(format, ...)
+    #define CAP_LOG_ERR(format, ...)
+    #define CAP_LOG_INF(format, ...)
 #endif
 
 /* Since `free()` ignores NULL pointer, set pointer to NULL
