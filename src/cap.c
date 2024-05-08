@@ -104,7 +104,7 @@ extern "C" {
 /* general type to store flag metadata */
 typedef struct __Cap_Flag_t {
     /* is flag provided in command-line or not */
-    int met;
+    unsigned int met: 1;
 
     /* flag name */
     char *name;
@@ -114,7 +114,7 @@ typedef struct __Cap_Flag_t {
 
     /* flag value */
     char *val;
-} __Cap_Flag_t;
+} __attribute__((packed)) __Cap_Flag_t;
 
 
 /* dynamic array to store flags */
@@ -191,34 +191,33 @@ struct Cap_t {
  * Functionalities
  */
 
-static void __cap_flag_free(__Cap_Flag_t **flag) {
-    __Cap_Flag_t *f = *flag;
-    if (f) {
-        cap_xfree(f->name);
-        cap_xfree(f->help);
-        /* xfree(f->val); */
-        cap_xfree(f);
+static void __cap_flag_free(__Cap_Flag_t *flag) {
+    if (flag) {
+        cap_xfree(flag->name);
+        cap_xfree(flag->help);
+        /* xfree(flag->val); */
+        cap_xfree(flag);
     }
 }
 
 
 /* free a flag-list */
-static void __cap_flist_free(__Cap_FList_t **flp) {
+static void __cap_flist_free(__Cap_FList_t *flp) {
     size_t i;
-    __Cap_FList_t *fl = *flp;
+    __Cap_FList_t *fl = flp;
     if (fl) {
         for (i = 0; i < fl->len; i++)
-            __cap_flag_free(&fl->flags[i]);
+            __cap_flag_free(fl->flags[i]);
         cap_xfree(fl->flags);
         cap_xfree(fl);
     }
 }
 
 
-static void __cap_subcmd_free(__Cap_Subcmd_t **scmd) {
-    __Cap_Subcmd_t *sc = *scmd;
+static void __cap_subcmd_free(__Cap_Subcmd_t *scmd) {
+    __Cap_Subcmd_t *sc = scmd;
     if (sc) {
-        __cap_flist_free(&sc->flags);
+        __cap_flist_free(sc->flags);
         cap_xfree(sc->name);
         cap_xfree(sc->help);
         cap_xfree(sc);
@@ -226,12 +225,12 @@ static void __cap_subcmd_free(__Cap_Subcmd_t **scmd) {
 }
 
 
-static void __cap_sclist_free(__Cap_SCList_t **sclist) {
+static void __cap_sclist_free(__Cap_SCList_t *sclist) {
     size_t i;
-    __Cap_SCList_t *scl = *sclist;
+    __Cap_SCList_t *scl = sclist;
     if (scl) {
         for (i = 0; i < scl->len; i++)
-            __cap_subcmd_free(&scl->cmds[i]);
+            __cap_subcmd_free(scl->cmds[i]);
         cap_xfree(scl->cmds);
         cap_xfree(scl);
     }
@@ -248,7 +247,7 @@ static __Cap_Subcmd_t *__cap_subcmd_new(const char *name, const char *help) {
 
     sc->name = strdup(name);
     if (sc->name == NULL) {
-        __cap_subcmd_free(&sc);
+        __cap_subcmd_free(sc);
         CAP_LOG_ERR("%s: Failed copy \'name\' parameter to \'sc->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
         return NULL;
@@ -256,7 +255,7 @@ static __Cap_Subcmd_t *__cap_subcmd_new(const char *name, const char *help) {
 
     sc->help = strdup(help);
     if (sc->help == NULL) {
-        __cap_subcmd_free(&sc);
+        __cap_subcmd_free(sc);
         CAP_LOG_ERR("%s: Failed copy \'help\' parameter to \'sc->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New sub-command name: %s\n", name);
         return NULL;
@@ -314,7 +313,7 @@ static __Cap_Flag_t *__cap_flag_new(const char *name, const char *help) {
     if (f->name == NULL) {
         CAP_LOG_ERR("%s: Failed to write name of flag to \'f->name\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
-        __cap_flag_free(&f);
+        __cap_flag_free(f);
         return NULL;
     }
 
@@ -322,7 +321,7 @@ static __Cap_Flag_t *__cap_flag_new(const char *name, const char *help) {
     if (f->help == NULL) {
         CAP_LOG_ERR("%s: Failed to write flag help message to \'f->help\'\n", __FUNCTION__);
         CAP_LOG_ERR("New flag name: %s\n", name);
-        __cap_flag_free(&f);
+        __cap_flag_free(f);
         return NULL;
     }
 
@@ -363,14 +362,14 @@ static __Cap_Flag_t *__cap_flist_find(const __Cap_FList_t *fl,
 
 /* Initialize Cap */
 Cap_t *cap_init(int argc, char **argv) {
-    Cap_t *cap = malloc(sizeof(Cap_t));
+    Cap_t *cap = malloc(sizeof(*cap));
     if (cap == NULL) {
         CAP_LOG_ERR("%s: Failed to initialize cap\n", __FUNCTION__);
         return NULL;
     }
 
-    cap->prog     = argv[0];
-    cap->argc     = argc-1;
+    cap->prog = argv[0];
+    cap->argc = argc-1;
 
     if (cap->argc == 0)
         cap->argv = NULL;
@@ -388,8 +387,8 @@ Cap_t *cap_init(int argc, char **argv) {
 void cap_deinit(Cap_t **cap) {
     Cap_t *c = *cap;
     if (c) {
-        __cap_sclist_free(&c->sub_cmds);
-        __cap_flist_free(&c->m_flags);
+        __cap_sclist_free(c->sub_cmds);
+        __cap_flist_free(c->m_flags);
         cap_xfree(c);
     }
 }
@@ -524,7 +523,7 @@ int cap_flag_provided(Cap_t *cap,
 
 
 /* remove dashes from beginning of flag name */
-static inline char *__cap_flag_extr_name(char *str) {
+static inline char *__cap_flag_rm_dash(char *str) {
     while (*str == '-') str++;
     return str;
 }
@@ -587,7 +586,7 @@ int cap_parse_args(Cap_t *cap) {
     for (int i = 0; i < argc; i++) {
         char *curr_arg = argv[i];
         if (*curr_arg == '-') {
-            flag = __cap_flist_find(flist, __cap_flag_extr_name(curr_arg));
+            flag = __cap_flist_find(flist, __cap_flag_rm_dash(curr_arg));
             if (flag == NULL) {
                 CAP_LOG_ERR("%s: Invalid flag: %s\n", __FUNCTION__, curr_arg);
                 continue;
