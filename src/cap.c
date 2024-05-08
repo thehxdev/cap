@@ -71,20 +71,20 @@ extern "C" {
 
 
 /* general macro to append a new item to a dynamic array */
-#define __cap_darr_append(ptr, len, cap, val, val_type)                 \
+#define __cap_darr_append(ptr, len, cap, val_type, val)                 \
     do {                                                                \
         if ((len) % (cap) == 0) {                                       \
             size_t __new_size__ = ((len) + (cap)) * sizeof(val_type);   \
             (ptr) = realloc((ptr), __new_size__);                       \
         }                                                               \
-        val_type **__tmp__ = &ptr[len];                                 \
-        *__tmp__ = val;                                                 \
+        val_type **__tmp__ = &(ptr)[(len)];                             \
+        *__tmp__ = (val);                                               \
         (len) += 1;                                                     \
     } while (0)
 
 
 /* general macro to find an item in a dynamic array */
-#define __cap_darr_find(res, tmp, tmp_type, ptr, len, cmp)              \
+#define __cap_darr_find(res, tmp_type, ptr, len, cmp)              \
     do {                                                                \
         tmp_type *tmp;                                                  \
         for (size_t i = 0; i < (len); i++) {                            \
@@ -293,7 +293,6 @@ static __Cap_Subcmd_t *__cap_sclist_find(const __Cap_SCList_t *sclist,
 
     __Cap_Subcmd_t *res = NULL;
     __cap_darr_find(res,
-                    tmp,
                     __Cap_Subcmd_t,
                     sclist->cmds,
                     sclist->len,
@@ -354,7 +353,6 @@ static __Cap_Flag_t *__cap_flist_find(const __Cap_FList_t *fl,
 
     __Cap_Flag_t *res = NULL;
     __cap_darr_find(res,
-                    tmp,
                     __Cap_Flag_t,
                     fl->flags,
                     fl->len,
@@ -414,7 +412,7 @@ int cap_register_subcmd(Cap_t *cap, const char *name, const char *help) {
         return 1;
     }
 
-    __cap_darr_append((*scl)->cmds, (*scl)->len, (*scl)->cap, sc, __Cap_Subcmd_t);
+    __cap_darr_append((*scl)->cmds, (*scl)->len, (*scl)->cap, __Cap_Subcmd_t, sc);
     return 0;
 }
 
@@ -456,7 +454,7 @@ int cap_register_flag(Cap_t *cap,
         CAP_LOG_ERR("New flag\'s name: %s\n", name);
     }
 
-    __cap_darr_append((*fl)->flags, (*fl)->len, (*fl)->cap, f, __Cap_Flag_t);
+    __cap_darr_append((*fl)->flags, (*fl)->len, (*fl)->cap, __Cap_Flag_t, f);
     return 0;
 }
 
