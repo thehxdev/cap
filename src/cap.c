@@ -47,11 +47,11 @@ extern "C" {
  * macros
  */
 
-/* enable debugging.
- * un-comment this line to enable logging */
-/* #define __CAP_DEBUG__ */
+// enable debugging.
+// un-comment this line to enable logging.
+// #define __CAP_DEBUG__
 
-/* Log error messages */
+// Log error messages
 #ifdef __CAP_DEBUG__
     #define CAP_LOG_FD  stderr
 
@@ -65,9 +65,9 @@ extern "C" {
     #define CAP_LOG_INF(format, ...)
 #endif
 
-/* Since `free()` ignores NULL pointer, set pointer to NULL
- * after calling `free()` to prevent double free error. */
-#define xfree(p) do { free((p)); (p) = NULL; } while (0)
+// Since `free()` ignores NULL pointer, set pointer to NULL
+// after calling `free()` to prevent double free error.
+#define cap_xfree(p) do { free((p)); (p) = NULL; } while (0)
 
 
 /* general macro to append a new item to a dynamic array */
@@ -194,10 +194,10 @@ struct Cap_t {
 static void __cap_flag_free(__Cap_Flag_t **flag) {
     __Cap_Flag_t *f = *flag;
     if (f) {
-        xfree(f->name);
-        xfree(f->help);
+        cap_xfree(f->name);
+        cap_xfree(f->help);
         /* xfree(f->val); */
-        xfree(f);
+        cap_xfree(f);
     }
 }
 
@@ -209,8 +209,8 @@ static void __cap_flist_free(__Cap_FList_t **flp) {
     if (fl) {
         for (i = 0; i < fl->len; i++)
             __cap_flag_free(&fl->flags[i]);
-        xfree(fl->flags);
-        xfree(fl);
+        cap_xfree(fl->flags);
+        cap_xfree(fl);
     }
 }
 
@@ -219,9 +219,9 @@ static void __cap_subcmd_free(__Cap_Subcmd_t **scmd) {
     __Cap_Subcmd_t *sc = *scmd;
     if (sc) {
         __cap_flist_free(&sc->flags);
-        xfree(sc->name);
-        xfree(sc->help);
-        xfree(sc);
+        cap_xfree(sc->name);
+        cap_xfree(sc->help);
+        cap_xfree(sc);
     }
 }
 
@@ -232,8 +232,8 @@ static void __cap_sclist_free(__Cap_SCList_t **sclist) {
     if (scl) {
         for (i = 0; i < scl->len; i++)
             __cap_subcmd_free(&scl->cmds[i]);
-        xfree(scl->cmds);
-        xfree(scl);
+        cap_xfree(scl->cmds);
+        cap_xfree(scl);
     }
 }
 
@@ -392,7 +392,7 @@ void cap_deinit(Cap_t **cap) {
     if (c) {
         __cap_sclist_free(&c->sub_cmds);
         __cap_flist_free(&c->m_flags);
-        xfree(c);
+        cap_xfree(c);
     }
 }
 
