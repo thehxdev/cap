@@ -84,16 +84,16 @@ extern "C" {
 
 
 /* general macro to find an item in a dynamic array */
-#define __cap_darr_find(res, tmp_type, ptr, len, cmp)              \
-    do {                                                                \
-        tmp_type *tmp;                                                  \
-        for (size_t i = 0; i < (len); i++) {                            \
-            tmp = (ptr)[i];                                             \
-            if ((cmp)) {                                                \
-                (res) = tmp;                                            \
-                break;                                                  \
-            }                                                           \
-        }                                                               \
+#define __cap_darr_find(res_ptr, res_type, ptr, len, cmp_expr)  \
+    do {                                                        \
+        res_type *tmp;                                          \
+        for (size_t i = 0; i < (len); i++) {                    \
+            tmp = (ptr)[i];                                     \
+            if ((cmp_expr)) {                                   \
+                (res_ptr) = tmp;                                \
+                break;                                          \
+            }                                                   \
+        }                                                       \
     } while (0)
 
 
