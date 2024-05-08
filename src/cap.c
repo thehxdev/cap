@@ -71,30 +71,30 @@ extern "C" {
 
 
 /* general macro to append a new item to a dynamic array */
-#define __cap_darr_append(ptr, len, cap, val, val_type)             \
-do {                                                                \
-    if ((len) % (cap) == 0) {                                       \
-        size_t __new_size__ = ((len) + (cap)) * sizeof(val_type);   \
-        (ptr) = realloc((ptr), __new_size__);                       \
-    }                                                               \
-    val_type **__tmp__ = &ptr[len];                                 \
-    *__tmp__ = val;                                                 \
-    (len) += 1;                                                     \
-} while (0)
+#define __cap_darr_append(ptr, len, cap, val, val_type)                 \
+    do {                                                                \
+        if ((len) % (cap) == 0) {                                       \
+            size_t __new_size__ = ((len) + (cap)) * sizeof(val_type);   \
+            (ptr) = realloc((ptr), __new_size__);                       \
+        }                                                               \
+        val_type **__tmp__ = &ptr[len];                                 \
+        *__tmp__ = val;                                                 \
+        (len) += 1;                                                     \
+    } while (0)
 
 
 /* general macro to find an item in a dynamic array */
-#define __cap_darr_find(res, tmp, tmp_type, ptr, len, cmp)          \
-do {                                                                \
-    tmp_type *tmp;                                                  \
-    for (size_t i = 0; i < (len); i++) {                            \
-        tmp = (ptr)[i];                                             \
-        if ((cmp)) {                                                \
-            (res) = tmp;                                            \
-            break;                                                  \
-        }                                                           \
-    }                                                               \
-} while (0)
+#define __cap_darr_find(res, tmp, tmp_type, ptr, len, cmp)              \
+    do {                                                                \
+        tmp_type *tmp;                                                  \
+        for (size_t i = 0; i < (len); i++) {                            \
+            tmp = (ptr)[i];                                             \
+            if ((cmp)) {                                                \
+                (res) = tmp;                                            \
+                break;                                                  \
+            }                                                           \
+        }                                                               \
+    } while (0)
 
 
 /*
