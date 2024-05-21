@@ -73,27 +73,29 @@ extern "C" {
 /* general macro to append a new item to a dynamic array */
 #define __cap_darr_append(ptr, len, cap, val_type, val)                 \
     do {                                                                \
-        if ((len) % (cap) == 0) {                                       \
+        if (((len) % (cap)) == 0) {                                     \
             size_t __new_size__ = ((len) + (cap)) * sizeof(val_type);   \
             (ptr) = realloc((ptr), __new_size__);                       \
         }                                                               \
-        val_type **__tmp__ = &(ptr)[(len)];                             \
-        *__tmp__ = (val);                                               \
+        val_type **__darr_tmp__ = &(ptr)[(len)];                        \
+        *__darr_tmp__ = (val);                                          \
         (len) += 1;                                                     \
     } while (0)
 
 
-/* general macro to find an item in a dynamic array */
-#define __cap_darr_find(res_ptr, res_type, ptr, len, cmp_expr)  \
-    do {                                                        \
-        res_type *tmp;                                          \
-        for (size_t i = 0; i < (len); i++) {                    \
-            tmp = (ptr)[i];                                     \
-            if ((cmp_expr)) {                                   \
-                (res_ptr) = tmp;                                \
-                break;                                          \
-            }                                                   \
-        }                                                       \
+/* general macro to find an item in a dynamic array.
+ * need to define tow variables to store result and temporary values
+ * before calling this macro. */
+#define __cap_darr_find(res_ptr, tmp_ptr, ptr, len, cmp_expr)       \
+    do {                                                            \
+        size_t __darr_i__;                                          \
+        for (__darr_i__ = 0; __darr_i__ < (len); __darr_i__++) {    \
+            tmp_ptr = (ptr)[__darr_i__];                            \
+            if ((cmp_expr)) {                                       \
+                (res_ptr) = tmp_ptr;                                \
+                break;                                              \
+            }                                                       \
+        }                                                           \
     } while (0)
 
 
@@ -295,9 +297,9 @@ static __Cap_Subcmd_t *__cap_sclist_find(const __Cap_SCList_t *sclist,
     if (!sclist)
         return NULL;
 
-    __Cap_Subcmd_t *res = NULL;
+    __Cap_Subcmd_t *res = NULL, *tmp = NULL;
     __cap_darr_find(res,
-                    __Cap_Subcmd_t,
+                    tmp,
                     sclist->cmds,
                     sclist->len,
                     (strcmp(tmp->name, name)) == 0);
@@ -360,9 +362,9 @@ static __Cap_Flag_t *__cap_flist_find(const __Cap_FList_t *fl,
     if (!fl)
         return NULL;
 
-    __Cap_Flag_t *res = NULL;
+    __Cap_Flag_t *res = NULL, *tmp = NULL;
     __cap_darr_find(res,
-                    __Cap_Flag_t,
+                    tmp,
                     fl->flags,
                     fl->len,
                     (strcmp(tmp->name, name)) == 0);
