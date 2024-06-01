@@ -142,7 +142,7 @@ typedef struct __Cap_Subcmd_t {
     char **raw_argv;
 
     /* sub-command's raw args count */
-    size_t raw_argc;
+    int raw_argc;
 
     /* flags associated with sub-command */
     __Cap_FList_t *flags;
@@ -174,7 +174,7 @@ struct Cap_t {
     char **argv;
 
     /* length of raw args */
-    size_t argc;
+    int argc;
 
     /* provided sub-command from arguments */
     __Cap_Subcmd_t *scmd;
